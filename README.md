@@ -22,28 +22,7 @@
 ###### (深色模式)
 
 # Prmopt：
-### 初始Prompt:浏览器控制台报了新的错误，是上一轮加 crossorigin 属性导致的，请直接编辑 index.html 修复：
-
-错误内容：
-Access to script at 'https://cdn.tailwindcss.com/' from origin 'null' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
-
-原因分析：
-Tailwind 的 CDN 服务端没有返回 Access-Control-Allow-Origin 响应头，
-但上一轮给所有 CDN 标签加上了 crossorigin="anonymous"，
-浏览器检查后发现响应头缺失，于是拦截了脚本加载。
-
-修复要求：
-1. 对 Vue 的 `<script>` 标签：保留 crossorigin="anonymous"（它需要这个属性来避免存储警告）。
-2. 对 Tailwind 的 `<script>` 标签：移除 crossorigin="anonymous" 属性，改为普通引入。
-3. 修改后确保页面能正常渲染，Vue 和 Tailwind 都能正常加载。
-
-步骤：
-1. 读取当前 index.html
-2. 给出最小计划
-3. 直接修改 index.html
-4. 报告修改点和验证方法
-
-不要提前实现其他功能。
+### 初始Prompt:
 
 我有一个任务管理应用要开发，项目根目录下已经有一个空的 index.html。
 
@@ -67,7 +46,7 @@ Tailwind 的 CDN 服务端没有返回 Access-Control-Allow-Origin 响应头，
 
 请确认你理解这个开发方式，不要修改任何文件。
 
-第一轮：
+### 第一轮：
 第 1 轮：只做项目骨架。
 
 请直接编辑项目根目录下的 index.html，不要输出完整代码。
