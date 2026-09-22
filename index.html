@@ -137,12 +137,32 @@
     const { createApp } = Vue;
 
     const THEME_KEY = 'task-manage:theme';
+    const TASKS_KEY = 'task-manage:tasks';
 
     function readTheme() {
       try {
         return localStorage.getItem(THEME_KEY);
       } catch (e) {
         return null;
+      }
+    }
+
+    function readTasks() {
+      try {
+        const raw = localStorage.getItem(TASKS_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function writeTasks(tasks) {
+      try {
+        localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+      } catch (e) {
+        // file:// 下 localStorage 不可用，忽略
       }
     }
 
@@ -156,14 +176,16 @@
 
     const initialDark = readTheme() === 'dark';
 
-    let nextId = 1;
+    const initialTasks = readTasks();
+
+    let nextId = initialTasks.reduce((max, t) => Math.max(max, Number(t.id) || 0), 0) + 1;
 
     createApp({
       data() {
         return {
           title: '任务管理',
           isDark: initialDark,
-          tasks: [],
+          tasks: initialTasks,
           form: {
             title: '',
             desc: '',
@@ -245,6 +267,12 @@
       watch: {
         isDark(value) {
           document.documentElement.classList.toggle('dark', value);
+        },
+        tasks: {
+          deep: true,
+          handler(value) {
+            writeTasks(value);
+          },
         },
       },
       mounted() {
