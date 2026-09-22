@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>任务管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen">
+  <div id="app">
+    <h1 class="text-3xl font-bold p-6">{{ title }}</h1>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          title: '任务管理',
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>
