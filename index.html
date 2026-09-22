@@ -5,24 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>任务管理</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' };
+  </script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen">
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 min-h-screen">
   <div id="app">
-    <div class="bg-amber-100 text-amber-900 text-sm px-6 py-2 border-b border-amber-300">
+    <div class="bg-amber-100 text-amber-900 dark:bg-amber-900 dark:text-amber-100 text-sm px-6 py-2 border-b border-amber-300 dark:border-amber-800">
       请用本地服务器打开（如 VS Code Live Server 或 python -m http.server），否则 localStorage 持久化功能将不可用。
     </div>
-    <h1 class="text-3xl font-bold p-6">{{ title }}</h1>
+    <div class="flex items-center justify-between p-6">
+      <h1 class="text-3xl font-bold">{{ title }}</h1>
+      <button
+        type="button"
+        class="px-4 py-2 rounded-md bg-gray-800 text-gray-100 dark:bg-gray-100 dark:text-gray-900"
+        @click="toggleDark"
+      >
+        {{ isDark ? '☀️ 浅色' : '🌙 深色' }}
+      </button>
+    </div>
   </div>
 
   <script>
     const { createApp } = Vue;
 
+    const THEME_KEY = 'task-manage:theme';
+
+    function readTheme() {
+      try {
+        return localStorage.getItem(THEME_KEY);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function writeTheme(value) {
+      try {
+        localStorage.setItem(THEME_KEY, value);
+      } catch (e) {
+        // file:// 下 localStorage 不可用，忽略
+      }
+    }
+
+    const initialDark = readTheme() === 'dark';
+
     createApp({
       data() {
         return {
           title: '任务管理',
+          isDark: initialDark,
         };
+      },
+      methods: {
+        toggleDark() {
+          this.isDark = !this.isDark;
+          writeTheme(this.isDark ? 'dark' : 'light');
+        },
+      },
+      watch: {
+        isDark(value) {
+          document.documentElement.classList.toggle('dark', value);
+        },
+      },
+      mounted() {
+        document.documentElement.classList.toggle('dark', this.isDark);
       },
     }).mount('#app');
   </script>
