@@ -25,6 +25,112 @@
         {{ isDark ? '☀️ 浅色' : '🌙 深色' }}
       </button>
     </div>
+
+    <div class="px-6 pb-6 max-w-3xl">
+      <!-- 任务表单 -->
+      <form
+        class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3"
+        @submit.prevent="submit"
+      >
+        <div>
+          <label class="block text-sm font-medium mb-1">标题 <span class="text-red-500">*</span></label>
+          <input
+            v-model="form.title"
+            type="text"
+            placeholder="请输入任务标题"
+            class="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">描述</label>
+          <textarea
+            v-model="form.desc"
+            rows="2"
+            placeholder="选填"
+            class="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+          ></textarea>
+        </div>
+        <div class="flex gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">状态</label>
+            <select
+              v-model="form.status"
+              class="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+            >
+              <option value="todo">todo</option>
+              <option value="doing">doing</option>
+              <option value="done">done</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">优先级</label>
+            <select
+              v-model="form.priority"
+              class="rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2"
+            >
+              <option value="high">high</option>
+              <option value="medium">medium</option>
+              <option value="low">low</option>
+            </select>
+          </div>
+        </div>
+        <p v-if="formError" class="text-red-500 text-sm">{{ formError }}</p>
+        <div class="flex gap-2">
+          <button type="submit" class="px-4 py-2 rounded-md bg-blue-600 text-white">
+            {{ editingId ? '保存' : '添加任务' }}
+          </button>
+          <button
+            v-if="editingId"
+            type="button"
+            @click="cancelEdit"
+            class="px-4 py-2 rounded-md bg-gray-300 dark:bg-gray-600 text-gray-900 dark:text-gray-100"
+          >
+            取消
+          </button>
+        </div>
+      </form>
+
+      <!-- 任务列表 -->
+      <div class="mt-6 space-y-2">
+        <div v-if="tasks.length === 0" class="text-gray-500 dark:text-gray-400 text-sm">
+          暂无任务
+        </div>
+        <div
+          v-for="task in tasks"
+          :key="task.id"
+          class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex items-start justify-between gap-3"
+        >
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-semibold">{{ task.title }}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full" :class="statusClass(task.status)">
+                {{ task.status }}
+              </span>
+              <span class="text-xs px-2 py-0.5 rounded-full" :class="priorityClass(task.priority)">
+                {{ task.priority }}
+              </span>
+            </div>
+            <p v-if="task.desc" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {{ task.desc }}
+            </p>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <button
+              @click="startEdit(task)"
+              class="px-3 py-1.5 rounded-md border border-gray-300 dark:border-gray-600 text-sm"
+            >
+              编辑
+            </button>
+            <button
+              @click="removeTask(task.id)"
+              class="px-3 py-1.5 rounded-md bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 text-sm"
+            >
+              删除
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -50,17 +156,90 @@
 
     const initialDark = readTheme() === 'dark';
 
+    let nextId = 1;
+
     createApp({
       data() {
         return {
           title: '任务管理',
           isDark: initialDark,
+          tasks: [],
+          form: {
+            title: '',
+            desc: '',
+            status: 'todo',
+            priority: 'medium',
+          },
+          editingId: null,
+          formError: '',
         };
       },
       methods: {
         toggleDark() {
           this.isDark = !this.isDark;
           writeTheme(this.isDark ? 'dark' : 'light');
+        },
+        resetForm() {
+          this.form = { title: '', desc: '', status: 'todo', priority: 'medium' };
+          this.editingId = null;
+          this.formError = '';
+        },
+        submit() {
+          if (!this.form.title.trim()) {
+            this.formError = '标题不能为空';
+            return;
+          }
+          if (this.editingId) {
+            const idx = this.tasks.findIndex((t) => t.id === this.editingId);
+            if (idx !== -1) {
+              this.tasks[idx] = {
+                ...this.tasks[idx],
+                title: this.form.title.trim(),
+                desc: this.form.desc.trim(),
+                status: this.form.status,
+                priority: this.form.priority,
+              };
+            }
+          } else {
+            this.tasks.push({
+              id: nextId++,
+              title: this.form.title.trim(),
+              desc: this.form.desc.trim(),
+              status: this.form.status,
+              priority: this.form.priority,
+            });
+          }
+          this.resetForm();
+        },
+        startEdit(task) {
+          this.editingId = task.id;
+          this.form = {
+            title: task.title,
+            desc: task.desc,
+            status: task.status,
+            priority: task.priority,
+          };
+          this.formError = '';
+        },
+        cancelEdit() {
+          this.resetForm();
+        },
+        removeTask(id) {
+          this.tasks = this.tasks.filter((t) => t.id !== id);
+        },
+        statusClass(status) {
+          return {
+            todo: 'bg-gray-200 text-gray-700 dark:bg-gray-600 dark:text-gray-100',
+            doing: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200',
+            done: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200',
+          }[status] || '';
+        },
+        priorityClass(priority) {
+          return {
+            high: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200',
+            medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-200',
+            low: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200',
+          }[priority] || '';
         },
       },
       watch: {
