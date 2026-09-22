@@ -4,11 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>任务管理</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js" crossorigin="anonymous"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen">
   <div id="app">
+    <div class="bg-amber-100 text-amber-900 text-sm px-6 py-2 border-b border-amber-300">
+      请用本地服务器打开（如 VS Code Live Server 或 python -m http.server），否则 localStorage 持久化功能将不可用。
+    </div>
     <h1 class="text-3xl font-bold p-6">{{ title }}</h1>
   </div>
 
