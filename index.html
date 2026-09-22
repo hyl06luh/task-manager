@@ -4,6 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>任务管理</title>
+  <script>
+    // 提前应用主题，避免深色模式下刷新闪烁
+    try {
+      if (localStorage.getItem('task-manage:theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {
+      // file:// 下 localStorage 不可用，忽略
+    }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { darkMode: 'class' };
@@ -97,7 +107,7 @@
           :key="col.status"
           class="bg-gray-50 dark:bg-gray-800/60 rounded-lg p-3 min-h-[200px]"
           @dragover.prevent
-          @drop="onDrop($event, col.status)"
+          @drop.prevent="onDrop($event, col.status)"
         >
           <h2 class="font-semibold mb-2 flex items-center justify-between">
             <span>{{ col.label }}</span>
